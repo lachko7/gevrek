@@ -9,3 +9,4 @@
 	int attack (card_t *attacker, card_t *defender);
 	
 #endif
+
