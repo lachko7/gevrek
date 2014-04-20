@@ -21,8 +21,8 @@ int attack (card_t *attacker, card_t *defender){
 }
 
 int main(){
-	card_t attacker = {"Powerful card",3, 3, 20};
-	card_t defender = {"Weak card", 3, 4, 20};
+	card_t attacker = {"Powerful card",40, 3000, 20};
+	card_t defender = {"Weak card", 320, 400, 20};
 	 
 	
 	if (attack(&attacker, &defender) == 0){ 
@@ -40,4 +40,3 @@ int main(){
 	
 	return 0;
 }
-
