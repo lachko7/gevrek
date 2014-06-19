@@ -4,6 +4,7 @@
 #include "card.h"
 #include "deck.h"
 #include "manapool.h"
+#include "shuffle.h"
 
 int can_play_card(board_t* board, int first_pl, int card, int num_lane){
 	if (first_pl == 1){
@@ -65,9 +66,9 @@ void turn_end(board_t* board, int first_pl){
 
 int who_wins(board_t* board){
 	if (board->player1.health == 0){
-		return 1;
-	} else if (board->player2.health == 0){
 		return 2;
+	} else if (board->player2.health == 0){
+		return 1;
 	}
 	return 0;
 }
@@ -166,7 +167,7 @@ char* cstring_player(player_t* player){
 	sprintf(turn, "%d", player->turn);
 	turn[2] = 0;
 	strcpy((pdata + name_size + 33), turn);
-	if(player->turn >= 10)
+	if(player->turn > 10)
 		pdata[name_size + 35] = 32;
 	else pdata[name_size + 34] = 32;	
 	pdata[57] = 0;
@@ -185,14 +186,13 @@ char* cstring_board_half(card_t* cards){
 	bdata[0] = '|' ;
 	int i;
 	int offset = 1;
-	int card_len = 9;
+	int card_len = 7;
 	for(i = 0; i < 5; i++){
 		if(cards[i].card_hp != 0){
-			strcpy((bdata+offset+1),cstring_card(&cards[i]));
+			strcpy((bdata+offset),cstring_card(&cards[i]));
 		}
 		offset+=card_len;
 		bdata[offset] = '|';
-		bdata[offset + 1] = 32;
 	}
 
 	return bdata;
@@ -209,15 +209,13 @@ char* cstring_hand(card_t* cards){
 	hdata[0] = '|';
 	int i;
 	int offset = 1;
-	const int card_len = 9;
+	const int card_len = 7;
 	for(i = 0; i < 5; i++){
 		if(cards[i].card_hp){
-			strcpy((hdata+offset+1),cstring_card(&cards[i]));
+			strcpy((hdata+offset),cstring_card(&cards[i]));
 		}	
 		offset += card_len;
 		hdata[offset] = '|';
-		hdata[offset + 1] = 32;
-		
 	}
 
 	return hdata;
@@ -235,50 +233,41 @@ char* cstring_card(card_t* card){
 	sprintf(attack,"%d",card->card_dmg);
 	attack[2] = 0;
 	strcpy((card_string+2),attack);
-	if(card->card_dmg>=10)
+
 	card_string[4] = '|';
-	else card_string[3] = '|';
 
 	char health[2];
 	sprintf(health,"%d", card->card_hp);
 	health[2] = 0;
 	strcpy((card_string+5),health);
-	if(card->card_hp >= 10)
-		card_string[7] = ')';
-	else card_string[6] = ')';
+	card_string[7] = ')';
+
 
 	return card_string;
 }
 
 
 int main(){
-	
 	board_t board;
 	memset(&board,0,sizeof(board_t));
-	board.player1.name = "Denis";
+	board.player1.name = "Pesho";
 	board.player1.health = 30;
-	card_t card;
-	card.card_dmg = 1;
-	card.card_hp = 1;
-	card.card_mana = 1;
-	
-	board.player1.hand[2] = card;
-	board.player2.name = "Lacho";
+
+	board.player2.name = "Gosho";
 	board.player2.health = 30;
 	visualize_board(&board);
-	board.player1.manapool.current_mana = 10;
-	if(can_play_card(&board,1,3,2)){
-		play_card(&board,1,3,2);		
+	int i;
+	for(i = 0; i < 30; i++){
+		card_t card;
+		card.card_hp = i+1;
+		card.card_dmg = i;
+		board.player1.deck.deck[i] = card;
+	}		
+
+	shuffle_deck(&board.player1.deck);
+
+	for(i = 0; i < 30; i++){
+		printf("(%d|%d)\n",board.player1.deck.deck[i].card_dmg,board.player1.deck.deck[i].card_hp);	
 	}
-	visualize_board(&board);	
-
-	turn_end(&board,1);
-	visualize_board(&board);
-
-	if(is_game_over(&board)){
-		printf("GAME OVER!!!\n");
-	} else printf("FIGHT!!!\n");
-
 	return 0;
 }
-
